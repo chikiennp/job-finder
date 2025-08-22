@@ -6,7 +6,7 @@ import { Role } from 'src/common/enums/role.enum';
 export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsOptional()
   @IsEnum(Role, { each: true })
-  role?: Role[];
+  roles?: Role[];
 
   @IsOptional()
   @IsBoolean()

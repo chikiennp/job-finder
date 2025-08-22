@@ -6,7 +6,7 @@ import { User } from '../database/entities/user.entity';
 import { Repository } from 'typeorm';
 import { Role } from 'src/common/enums/role.enum';
 import bcrypt from 'node_modules/bcryptjs';
-import { BCRYPT_SALT_ROUNDS } from 'src/common/constants/bcrypt.constants';
+import { BCRYPT_SALT_ROUNDS } from 'src/common/constants/auth.constants';
 
 @Injectable()
 export class UsersService {
@@ -37,7 +37,7 @@ export class UsersService {
     );
     const newUser = {
       ...createUserDto,
-      role: [Role.Candidate],
+      roles: [Role.Candidate],
       password: hashedPassword,
       isActive: true,
     };

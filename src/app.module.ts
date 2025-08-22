@@ -6,6 +6,7 @@ import { ApplicationsModule } from './applications/applications.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { typeOrmConfig } from './database/typeorm.config';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { typeOrmConfig } from './database/typeorm.config';
       envFilePath: '.env',
     }),
     TypeOrmModule.forRootAsync(typeOrmConfig),
+    RedisModule,
     UsersModule,
     JobsModule,
     ApplicationsModule,

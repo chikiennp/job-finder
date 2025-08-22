@@ -21,7 +21,7 @@ export class User {
   password: string;
 
   @Column('simple-array')
-  role: Role[];
+  roles: Role[];
 
   @Column()
   isActive: boolean;
