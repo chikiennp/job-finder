@@ -1,4 +1,60 @@
-import { Controller } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  UnauthorizedException,
+  UseGuards,
+} from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { Public } from 'src/common/decorators/public.decorator';
+import { SignInDto } from './dto/sign-in.dto';
+import type { JwtPayloadInterface } from 'src/common/interfaces/jwt-payload.interface';
+import { Auth } from 'src/common/decorators/auth.decorator';
+import { Role } from 'src/common/enums/role.enum';
+import { User } from 'src/common/decorators/user.decorator';
+import type { Request } from 'express';
+import { RefreshGuard } from 'src/common/guards/refresh.guard';
 
 @Controller('auth')
-export class AuthController {}
+export class AuthController {
+  constructor(private authService: AuthService) {}
+
+  @HttpCode(HttpStatus.OK)
+  @Public()
+  @Post('login')
+  async signIn(@Body() signInDto: SignInDto) {
+    return await this.authService.signIn(
+      signInDto.username,
+      signInDto.password,
+    );
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('logout')
+  async signOut(@User('sub') userId: number) {
+    return await this.authService.signOut(userId);
+  }
+
+  @Public()
+  @UseGuards(RefreshGuard)
+  @Post('refresh')
+  async refresh(@User('sub') userId: number, @Req() request: Request) {
+    const authHeader = request.headers['authorization'];
+    if (!authHeader) throw new UnauthorizedException();
+
+    const [type, refreshToken] = authHeader.split(' ');
+    if (type !== 'Bearer') throw new UnauthorizedException();
+
+    return this.authService.refreshToken(userId, refreshToken);
+  }
+
+  @Get('profile')
+  @Auth(Role.Candidate, Role.Admin)
+  getProfile(@User() user: JwtPayloadInterface) {
+    return user;
+  }
+}
