@@ -30,7 +30,7 @@ export class UsersService {
     return this.userRepository.find();
   }
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDto, adminId?: number): Promise<User> {
     const hashedPassword = await bcrypt.hash(
       createUserDto.password,
       BCRYPT_SALT_ROUNDS,
@@ -40,20 +40,47 @@ export class UsersService {
       roles: [Role.Candidate],
       password: hashedPassword,
       isActive: true,
+      createdBy: adminId,
     };
     return await this.userRepository.save(newUser);
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
+  async update(id: number, adminId: number, updateUserDto: UpdateUserDto) {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new NotFoundException(`User with id ${id} not found`);
     }
-    const updatedUser = { ...user, ...updateUserDto };
+
+    if (updateUserDto.password) {
+      updateUserDto.password = await bcrypt.hash(
+        updateUserDto.password,
+        BCRYPT_SALT_ROUNDS,
+      );
+    }
+
+    const updatedUser = { ...user, ...updateUserDto, updatedBy: adminId };
     return await this.userRepository.save(updatedUser);
   }
 
   async remove(id: number) {
     return this.userRepository.delete(id);
+  }
+
+  async softRemove(id: number, adminId: number) {
+    const user = await this.userRepository.findOneBy({ id });
+    if (!user) throw new NotFoundException('User not found');
+
+    user.isActive = false;
+    user.updatedBy = adminId;
+    return this.userRepository.save(user);
+  }
+
+  async restore(id: number, adminId: number) {
+    const user = await this.userRepository.findOneBy({ id });
+    if (!user) throw new NotFoundException('User not found');
+
+    user.isActive = true;
+    user.updatedBy = adminId;
+    return this.userRepository.save(user);
   }
 }

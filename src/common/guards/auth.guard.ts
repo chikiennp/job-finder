@@ -10,12 +10,9 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import { JwtPayloadInterface } from '../interfaces/jwt-payload.interface';
 import { IS_PUBLIC_KEY } from '../constants/auth.constants';
-import {
-  TOKEN_NOT_PROVIDED,
-  TOKEN_REVOKED,
-} from '../constants/messages.constants';
 import { REDIS_CLIENT } from '../constants/redis.constants';
 import * as redis from 'redis';
+import { ErrorMessage } from '../enums/message.enums';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -35,7 +32,7 @@ export class AuthGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
-      throw new UnauthorizedException(TOKEN_NOT_PROVIDED);
+      throw new UnauthorizedException(ErrorMessage.TOKEN_NOT_PROVIDED);
     }
     let payload: JwtPayloadInterface;
     try {
@@ -48,7 +45,7 @@ export class AuthGuard implements CanActivate {
     }
     const redisToken = await this.redisClient.get(`auth:token:${payload.sub}`);
     if (!redisToken || redisToken !== token) {
-      throw new UnauthorizedException(TOKEN_REVOKED);
+      throw new UnauthorizedException(ErrorMessage.TOKEN_REVOKED);
     }
 
     return true;
