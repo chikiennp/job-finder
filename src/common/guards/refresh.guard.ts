@@ -1,4 +1,4 @@
-import { TOKEN_INVALID_OR_EXPIRED } from './../constants/messages.constants';
+import { TOKEN_INVALID_OR_EXPIRED } from '../enums/message.enums';
 import {
   Injectable,
   CanActivate,
@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Request } from 'express';
-import { TOKEN_NOT_PROVIDED } from '../constants/messages.constants';
+import { TOKEN_NOT_PROVIDED } from '../enums/message.enums';
 import { JwtRefreshInterface } from '../interfaces/jwt-refresh.interface';
 
 @Injectable()

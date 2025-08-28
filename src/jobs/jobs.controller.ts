@@ -10,14 +10,19 @@ import {
 import { JobsService } from './jobs.service';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
+import { User } from 'src/common/decorators/user.decorator';
+import { ParseIntPipe } from 'src/common/pipes/parse-int.pipe';
 
 @Controller('jobs')
 export class JobsController {
   constructor(private readonly jobsService: JobsService) {}
 
   @Post()
-  create(@Body() createJobDto: CreateJobDto) {
-    return this.jobsService.create(createJobDto);
+  async create(
+    @User('sub') userId: number,
+    @Body() createJobDto: CreateJobDto,
+  ) {
+    return await this.jobsService.create(userId, createJobDto);
   }
 
   @Get()
@@ -26,17 +31,21 @@ export class JobsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.jobsService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.jobsService.findById(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateJobDto: UpdateJobDto) {
-    return this.jobsService.update(+id, updateJobDto);
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @User('sub') userId: number,
+    @Body() updateJobDto: UpdateJobDto,
+  ) {
+    return await this.jobsService.update(id, userId, updateJobDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.jobsService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.jobsService.remove(id);
   }
 }

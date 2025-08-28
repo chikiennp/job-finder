@@ -18,19 +18,24 @@ import { Role } from 'src/common/enums/role.enum';
 import { User } from 'src/common/decorators/user.decorator';
 import type { Request } from 'express';
 import { RefreshGuard } from 'src/common/guards/refresh.guard';
+import { SignUpDto } from './dto/sign-up.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @HttpCode(HttpStatus.CREATED)
+  @Public()
+  @Post('register')
+  async signUp(@Body() signUpDto: SignUpDto) {
+    return await this.authService.register(signUpDto);
+  }
+
   @HttpCode(HttpStatus.OK)
   @Public()
   @Post('login')
   async signIn(@Body() signInDto: SignInDto) {
-    return await this.authService.signIn(
-      signInDto.username,
-      signInDto.password,
-    );
+    return await this.authService.signIn(signInDto);
   }
 
   @HttpCode(HttpStatus.OK)

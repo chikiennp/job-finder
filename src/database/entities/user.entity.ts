@@ -1,13 +1,10 @@
 import { Role } from 'src/common/enums/role.enum';
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Job } from './job.entity';
+import { AbstractEntity } from './base.entity';
 
 @Entity('users')
-export class User {
+export class User extends AbstractEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -26,6 +23,6 @@ export class User {
   @Column()
   isActive: boolean;
 
-  @CreateDateColumn()
-  createdAt: Date;
+  @OneToMany(() => Job, (job) => job.employer)
+  jobs: Job[];
 }
