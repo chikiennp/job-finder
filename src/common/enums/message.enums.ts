@@ -5,6 +5,7 @@ export enum ErrorMessage {
   USER_ALREADY_EXISTS = 'User already exists',
   INVALID_CREDENTIALS = 'Invalid username or password',
   CONFIRM_PASSWORD_UNMATCHED = 'Confirm password does not match',
+  FORBIDDEN_PROFILE = 'You can only view your own profile',
 
   // Job related errors
   JOB_NOT_FOUND = 'Job not found',
