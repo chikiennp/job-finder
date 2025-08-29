@@ -2,6 +2,7 @@ import { Role } from 'src/common/enums/role.enum';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Job } from './job.entity';
 import { AbstractEntity } from './base.entity';
+import { Application } from './application.entity';
 
 @Entity('users')
 export class User extends AbstractEntity {
@@ -23,6 +24,12 @@ export class User extends AbstractEntity {
   @Column()
   isActive: boolean;
 
+  @Column({ type: 'timestamp', nullable: true })
+  lastLogin?: Date;
+
   @OneToMany(() => Job, (job) => job.employer)
   jobs: Job[];
+
+  @OneToMany(() => Application, (app) => app.appliedBy)
+  applications: Application[];
 }

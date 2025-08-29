@@ -3,11 +3,13 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from './user.entity';
 import { AbstractEntity } from './base.entity';
 import { Status } from '../../common/enums/status.enum';
+import { Application } from './application.entity';
 
 @Entity('jobs')
 export class Job extends AbstractEntity {
@@ -42,4 +44,7 @@ export class Job extends AbstractEntity {
     default: Status.Pending,
   })
   status: Status;
+
+  @OneToMany(() => Application, (app) => app.job)
+  applications: Application[];
 }

@@ -1,4 +1,3 @@
-import { TOKEN_INVALID_OR_EXPIRED } from '../enums/message.enums';
 import {
   Injectable,
   CanActivate,
@@ -7,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import type { Request } from 'express';
-import { TOKEN_NOT_PROVIDED } from '../enums/message.enums';
 import { JwtRefreshInterface } from '../interfaces/jwt-refresh.interface';
+import { ErrorMessage } from '../enums/message.enums';
 
 @Injectable()
 export class RefreshGuard implements CanActivate {
@@ -18,7 +17,7 @@ export class RefreshGuard implements CanActivate {
     const request = context.switchToHttp().getRequest<Request>();
     const refreshToken = this.extractTokenFromHeader(request);
     if (!refreshToken) {
-      throw new UnauthorizedException(TOKEN_NOT_PROVIDED);
+      throw new UnauthorizedException(ErrorMessage.TOKEN_NOT_PROVIDED);
     }
     try {
       const payload = await this.jwtService.verifyAsync<JwtRefreshInterface>(
@@ -30,7 +29,7 @@ export class RefreshGuard implements CanActivate {
       request['user'] = { sub: payload.sub, refreshToken };
       return true;
     } catch {
-      throw new UnauthorizedException(TOKEN_INVALID_OR_EXPIRED);
+      throw new UnauthorizedException(ErrorMessage.TOKEN_INVALID_OR_EXPIRED);
     }
   }
 

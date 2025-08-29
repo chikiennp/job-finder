@@ -3,10 +3,13 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../database/entities/user.entity';
-import { Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, Repository } from 'typeorm';
 import { Role } from 'src/common/enums/role.enum';
 import bcrypt from 'node_modules/bcryptjs';
 import { BCRYPT_SALT_ROUNDS } from 'src/common/constants/auth.constants';
+import { FilterUserDto } from './dto/filter-user.dto';
+import { UserMapper } from './mappers/user.mapper';
+import { AdminUserDto } from './dto/user-dto';
 
 @Injectable()
 export class UsersService {
@@ -26,8 +29,33 @@ export class UsersService {
     return this.userRepository.findOne({ where: { id } });
   }
 
-  async findAll(): Promise<User[]> {
-    return this.userRepository.find();
+  async findAll(filters: FilterUserDto): Promise<AdminUserDto[]> {
+    const query: FindOptionsWhere<User> = {};
+
+    if (filters.email) {
+      query.email = ILike(`%${filters.email}%`);
+    }
+    if (filters.username) {
+      query.username = ILike(`%${filters.username}%`);
+    }
+    if (filters.isActive) {
+      query.isActive = filters.isActive;
+    }
+
+    const pageSize = 3;
+    const page = filters.page;
+
+    let users: User[];
+    if (page === undefined) {
+      users = await this.userRepository.find({ where: query });
+    } else {
+      users = await this.userRepository.find({
+        where: query,
+        skip: page * pageSize,
+        take: pageSize,
+      });
+    }
+    return users.map((user) => UserMapper.toAdminUserDto(user));
   }
 
   async create(createUserDto: CreateUserDto, adminId?: number): Promise<User> {
